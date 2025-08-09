@@ -8,11 +8,10 @@
 // });
 
 
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-test('renders map heading', () => {
+test("renders Select a City text", () => {
   render(<App />);
-  const heading = screen.getByText(/Visakhapatnam/i); // or whatever is in your app
-  expect(heading).toBeInTheDocument();
+  expect(screen.getByText(/Select a City/i)).toBeInTheDocument();
 });
