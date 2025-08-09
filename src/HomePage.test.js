@@ -84,11 +84,14 @@ describe("HomePage Component", () => {
     expect(screen.queryByText(/Tower 1/i)).not.toBeInTheDocument();
   });
 
-  test("clicking tower sets position", () => {
-    render(<HomePage />);
-    fireEvent.click(screen.getByRole("button", { name: /Visakhapatnam/i }));
-    const towerButton = screen.getByText(/Tower 1/i);
-    fireEvent.click(towerButton);
-    expect(screen.getByTestId("map")).toBeInTheDocument();
-  });
+  test("should render map after clicking tower", async () => {
+  render(<HomePage />);
+  fireEvent.click(screen.getByRole("button", { name: /Visakhapatnam/i }));
+
+  const towerButton = await screen.findByText(/Tower 1/i); // <-- async wait
+  fireEvent.click(towerButton);
+
+  expect(screen.getByTestId("map")).toBeInTheDocument();
+});
+
 });
