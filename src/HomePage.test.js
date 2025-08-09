@@ -47,70 +47,72 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import HomePage from "./HomePage";
 
-
-jest.mock("react-leaflet", () => {
-  const React = require("react");
-  return {
-    MapContainer: ({ children }) => <div data-testid="map">{children}</div>,
-    TileLayer: () => <div data-testid="tile-layer"></div>,
-    Marker: React.forwardRef(({ children, position }, ref) => (
-      <div ref={ref} data-testid={`marker-${position.join(",")}`}>
-        {children}
-      </div>
-    )),
-    Popup: ({ children }) => <div data-testid="popup">{children}</div>,
-    useMap: () => ({ setView: jest.fn() })
-  };
-});
+// Mock react-leaflet (keep your existing mock)
+jest.mock("react-leaflet", () => ({
+  MapContainer: ({ children }) => <div data-testid="map">{children}</div>,
+  TileLayer: () => <div data-testid="tile-layer"></div>,
+  Marker: ({ children, position }) => (
+    <div data-testid={`marker-${position.join(",")}`}>
+      {children}
+    </div>
+  ),
+  Popup: ({ children }) => <div data-testid="popup">{children}</div>,
+  useMap: () => ({ setView: jest.fn() })
+}));
 
 describe("HomePage Component", () => {
   test("renders city list", () => {
     render(<HomePage />);
-    expect(screen.getByText(/Select a City/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Visakhapatnam/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Delhi/i })).toBeInTheDocument();
+    expect(screen.getByText("Select a City")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Visakhapatnam" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delhi" })).toBeInTheDocument();
   });
 
   test("expands and collapses city towers list", async () => {
     render(<HomePage />);
     
-   
-    const cityButton = screen.getByRole("button", { name: /Visakhapatnam/i });
+    // Click to expand Visakhapatnam
+    const cityButton = screen.getByRole("button", { name: "Visakhapatnam" });
     fireEvent.click(cityButton);
     
-    
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Tower 1/i })).toBeInTheDocument();
+    // Wait for and find the EXACT "Tower 1" button (not containing other numbers)
+    const towerButton = await screen.findByRole("button", { 
+      name: /^Tower 1$/i 
     });
+    expect(towerButton).toBeInTheDocument();
     
-    
+    // Click to collapse
     fireEvent.click(cityButton);
     
-   
+    // Verify tower button disappears
     await waitFor(() => {
-      expect(screen.queryByRole("button", { name: /Tower 1/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /^Tower 1$/i })).toBeNull();
     });
   });
 
   test("should render map after clicking tower", async () => {
     render(<HomePage />);
     
-    
-    const cityButton = screen.getByRole("button", { name: /Visakhapatnam/i });
+    // Expand Visakhapatnam
+    const cityButton = screen.getByRole("button", { name: "Visakhapatnam" });
     fireEvent.click(cityButton);
     
-    
+    // Wait for and click the EXACT "Tower 1" button
     const towerButton = await screen.findByRole("button", { 
       name: /^Tower 1$/i 
-    }, { timeout: 3000 });
+    });
     fireEvent.click(towerButton);
     
-    
+    // Verify map renders
     expect(screen.getByTestId("map")).toBeInTheDocument();
     
-    
+    // Verify specific marker exists
     await waitFor(() => {
       expect(screen.getByTestId("marker-17.6868,83.2185")).toBeInTheDocument();
     });
+    
+    // Verify popup content if needed
+    const popups = screen.getAllByTestId("popup");
+    expect(popups.some(popup => popup.textContent.includes("Cell Tower 1 in Visakhapatnam"))).toBeTruthy();
   });
 });
