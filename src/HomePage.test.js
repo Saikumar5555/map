@@ -62,36 +62,43 @@ jest.mock("react-leaflet", () => {
     useMap: () => ({ setView: jest.fn() })
   };
 });
-
 describe("HomePage Component", () => {
   test("renders city list", () => {
     render(<HomePage />);
     expect(screen.getByText(/Select a City/i)).toBeInTheDocument();
-
-    // Match buttons ignoring the arrow symbol and spaces
-    expect(
-      screen.getByRole("button", { name: /Visakhapatnam/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Visakhapatnam/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Delhi/i })).toBeInTheDocument();
   });
 
   test("expands and collapses city towers list", () => {
     render(<HomePage />);
     const cityButton = screen.getByRole("button", { name: /Visakhapatnam/i });
+    
+    // First click to expand
     fireEvent.click(cityButton);
-    expect(screen.getByText(/Tower 1/i)).toBeInTheDocument();
+    // Be specific about looking for a button with "Tower 1" text
+    const towerButton = screen.getByRole("button", { name: /Tower 1/i });
+    expect(towerButton).toBeInTheDocument();
+    
+    // Second click to collapse
     fireEvent.click(cityButton);
-    expect(screen.queryByText(/Tower 1/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Tower 1/i })).not.toBeInTheDocument();
   });
 
   test("should render map after clicking tower", async () => {
-  render(<HomePage />);
-  fireEvent.click(screen.getByRole("button", { name: /Visakhapatnam/i }));
-
-  const towerButton = await screen.findByText(/Tower 1/i); // <-- async wait
-  fireEvent.click(towerButton);
-
-  expect(screen.getByTestId("map")).toBeInTheDocument();
-});
-
+    render(<HomePage />);
+    
+    // Expand the city first
+    fireEvent.click(screen.getByRole("button", { name: /Visakhapatnam/i }));
+    
+    // Find and click the specific tower button
+    const towerButton = await screen.findByRole("button", { name: /Tower 1/i });
+    fireEvent.click(towerButton);
+    
+    // Verify map is rendered
+    expect(screen.getByTestId("map")).toBeInTheDocument();
+    
+    // Optional: verify the marker for this tower exists
+    expect(screen.getByTestId("marker-17.6868,83.2185")).toBeInTheDocument();
+  });
 });
