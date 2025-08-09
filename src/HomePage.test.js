@@ -42,12 +42,12 @@
 // });
 
 
-// src/HomePage.test.js
+
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import HomePage from "./HomePage";
 
-// Mock react-leaflet so it doesn't try to actually render a map
+
 jest.mock("react-leaflet", () => {
   const React = require("react");
   return {
@@ -62,6 +62,7 @@ jest.mock("react-leaflet", () => {
     useMap: () => ({ setView: jest.fn() })
   };
 });
+
 describe("HomePage Component", () => {
   test("renders city list", () => {
     render(<HomePage />);
@@ -70,35 +71,46 @@ describe("HomePage Component", () => {
     expect(screen.getByRole("button", { name: /Delhi/i })).toBeInTheDocument();
   });
 
-  test("expands and collapses city towers list", () => {
+  test("expands and collapses city towers list", async () => {
     render(<HomePage />);
+    
+   
     const cityButton = screen.getByRole("button", { name: /Visakhapatnam/i });
-    
-    // First click to expand
     fireEvent.click(cityButton);
-    // Be specific about looking for a button with "Tower 1" text
-    const towerButton = screen.getByRole("button", { name: /Tower 1/i });
-    expect(towerButton).toBeInTheDocument();
     
-    // Second click to collapse
+    
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Tower 1/i })).toBeInTheDocument();
+    });
+    
+    
     fireEvent.click(cityButton);
-    expect(screen.queryByRole("button", { name: /Tower 1/i })).not.toBeInTheDocument();
+    
+   
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: /Tower 1/i })).not.toBeInTheDocument();
+    });
   });
 
   test("should render map after clicking tower", async () => {
     render(<HomePage />);
     
-    // Expand the city first
-    fireEvent.click(screen.getByRole("button", { name: /Visakhapatnam/i }));
     
-    // Find and click the specific tower button
-    const towerButton = await screen.findByRole("button", { name: /Tower 1/i });
+    const cityButton = screen.getByRole("button", { name: /Visakhapatnam/i });
+    fireEvent.click(cityButton);
+    
+    
+    const towerButton = await screen.findByRole("button", { 
+      name: /^Tower 1$/i 
+    }, { timeout: 3000 });
     fireEvent.click(towerButton);
     
-    // Verify map is rendered
+    
     expect(screen.getByTestId("map")).toBeInTheDocument();
     
-    // Optional: verify the marker for this tower exists
-    expect(screen.getByTestId("marker-17.6868,83.2185")).toBeInTheDocument();
+    
+    await waitFor(() => {
+      expect(screen.getByTestId("marker-17.6868,83.2185")).toBeInTheDocument();
+    });
   });
 });
