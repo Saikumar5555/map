@@ -21,12 +21,16 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "test:ci": "react-scripts test --watchAll=false"
-
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
+    ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-leaflet|@react-leaflet|@babel/runtime)/)"
     ]
   },
   "browserslist": {
@@ -45,6 +49,9 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
-    "jest": "^27.5.1"
+    "jest": "^27.5.1",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
+    "babel-jest": "^27.5.1"
   }
 }
