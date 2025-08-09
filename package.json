@@ -29,10 +29,15 @@
     ]
   },
   "jest": {
-    "transformIgnorePatterns": [
-      "node_modules/(?!(react-leaflet|@react-leaflet|@babel/runtime)/)"
-    ]
-  },
+  "transformIgnorePatterns": [
+    "node_modules/(?!(react-leaflet|@react-leaflet|@babel/runtime)/)"
+  ],
+  "moduleNameMapper": {
+    "\\.(css|less|scss|sass)$": "<rootDir>/src/__mocks__/styleMock.js"
+  }
+},
+
+
   "browserslist": {
     "production": [
       ">0.2%",
