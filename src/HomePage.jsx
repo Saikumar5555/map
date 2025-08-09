@@ -396,15 +396,16 @@ const HomePage = () => {
   const cities = [...new Set(towersData.map(tower => tower.city))];
 
   const createDefaultIcon = () => {
-    return L.icon({
-      iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
-      shadowSize: [41, 41],
-    });
-  };
+  return L.icon({
+    iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
+    iconRetinaUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon-2x.png',
+    shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+};
 
   useEffect(() => {
     if (selectedTowerId && markerRefs.current[selectedTowerId]) {

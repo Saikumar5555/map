@@ -29,15 +29,13 @@
     ]
   },
   "jest": {
-  "transformIgnorePatterns": [
-    "node_modules/(?!(react-leaflet|@react-leaflet|@babel/runtime)/)"
-  ],
-  "moduleNameMapper": {
-    "\\.(css|less|scss|sass)$": "<rootDir>/src/__mocks__/styleMock.js"
-  }
-},
-
-
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-leaflet|@react-leaflet|@babel/runtime)/)"
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less|scss|sass)$": "<rootDir>/src/__mocks__/styleMock.js"
+    }
+  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -52,11 +50,12 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@testing-library/jest-dom": "^6.6.4",
-    "@testing-library/react": "^16.3.0",
-    "jest": "^27.5.1",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.26.3",
-    "babel-jest": "^27.5.1"
+    "@testing-library/jest-dom": "^6.6.4",
+    "@testing-library/react": "^16.3.0",
+    "babel-jest": "^27.5.1",
+    "jest": "^27.5.1",
+    "jest-canvas-mock": "^2.5.2"
   }
 }
