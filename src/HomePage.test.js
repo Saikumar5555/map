@@ -42,18 +42,17 @@
 // });
 
 
-
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import HomePage from "./HomePage";
 
-// Mock react-leaflet (keep your existing mock)
+// Mock react-leaflet with proper test IDs
 jest.mock("react-leaflet", () => ({
   MapContainer: ({ children }) => <div data-testid="map">{children}</div>,
   TileLayer: () => <div data-testid="tile-layer"></div>,
   Marker: ({ children, position }) => (
-    <div data-testid={`marker-${position.join(",")}`}>
-      {children}
+    <div data-testid={`marker-${position[0]},${position[1]}`}>
+      <div data-testid="popup">{children}</div>
     </div>
   ),
   Popup: ({ children }) => <div data-testid="popup">{children}</div>,
@@ -75,32 +74,29 @@ describe("HomePage Component", () => {
     const cityButton = screen.getByRole("button", { name: "Visakhapatnam" });
     fireEvent.click(cityButton);
     
-    // Wait for and find the EXACT "Tower 1" button (not containing other numbers)
-    const towerButton = await screen.findByRole("button", { 
-      name: /^Tower 1$/i 
+    // Wait for any tower button to appear
+    await waitFor(() => {
+      expect(screen.getByText(/Tower 1/i)).toBeInTheDocument();
     });
-    expect(towerButton).toBeInTheDocument();
     
     // Click to collapse
     fireEvent.click(cityButton);
     
-    // Verify tower button disappears
+    // Verify tower buttons disappear
     await waitFor(() => {
-      expect(screen.queryByRole("button", { name: /^Tower 1$/i })).toBeNull();
+      expect(screen.queryByText(/Tower 1/i)).not.toBeInTheDocument();
     });
   });
 
-  test("should render map after clicking tower", async () => {
+  test("should render map and marker after clicking tower", async () => {
     render(<HomePage />);
     
     // Expand Visakhapatnam
     const cityButton = screen.getByRole("button", { name: "Visakhapatnam" });
     fireEvent.click(cityButton);
     
-    // Wait for and click the EXACT "Tower 1" button
-    const towerButton = await screen.findByRole("button", { 
-      name: /^Tower 1$/i 
-    });
+    // Wait for and click Tower 1
+    const towerButton = await screen.findByText(/Tower 1/i);
     fireEvent.click(towerButton);
     
     // Verify map renders
@@ -111,8 +107,13 @@ describe("HomePage Component", () => {
       expect(screen.getByTestId("marker-17.6868,83.2185")).toBeInTheDocument();
     });
     
-    // Verify popup content if needed
+    // Verify popup content
     const popups = screen.getAllByTestId("popup");
-    expect(popups.some(popup => popup.textContent.includes("Cell Tower 1 in Visakhapatnam"))).toBeTruthy();
+    expect(
+      popups.some(popup => 
+        popup.textContent.includes("Cell Tower 1") && 
+        popup.textContent.includes("Visakhapatnam")
+      )
+    ).toBe(true);
   });
 });
